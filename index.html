@@ -332,6 +332,61 @@ function eagleSend(message) {
   return eagleThink(message);
 }
 </script>
+
+<div id="eagle-chat" style="
+  background:#101010;
+  color:white;
+  padding:20px;
+  border-radius:15px;
+  font-family:Arial,sans-serif;
+  max-width:600px;
+  margin:20px auto;
+">
+  <h2 style="text-align:center;color:#d4af37">
+    🦅 BLACK EAGLE AI
+  </h2>
+
+  <div id="eagle-messages" style="
+    height:350px;
+    overflow-y:auto;
+    background:#202020;
+    padding:12px;
+    border-radius:10px;
+  ">
+    <p><b>BLACK EAGLE:</b> Halo! Ada yang bisa saya bantu?</p>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <input id="eagle-input"
+      placeholder="Ketik pesan..."
+      style="flex:1;min-width:0;padding:12px;border-radius:8px;">
+    <button onclick="sendEagleMessage()"
+      style="background:#d4af37;border:0;padding:12px;border-radius:8px;">
+      KIRIM
+    </button>
+  </div>
+</div>
+
+<script>
+function sendEagleMessage() {
+  const input = document.getElementById("eagle-input");
+  const messages = document.getElementById("eagle-messages");
+  const message = input.value.trim();
+
+  if (!message) return;
+
+  const user = document.createElement("p");
+  user.textContent = "KAMU: " + message;
+  messages.appendChild(user);
+
+  const reply = document.createElement("p");
+  reply.textContent = "BLACK EAGLE: " + eagleSend(message);
+  messages.appendChild(reply);
+
+  input.value = "";
+  messages.scrollTop = messages.scrollHeight;
+}
+</script>
 </body>
 </html>
 </body>
