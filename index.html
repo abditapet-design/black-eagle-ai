@@ -287,5 +287,52 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+
+<script>
+const eagleKnowledge = [
+  {
+    words: ["halo", "hai", "hello"],
+    answer: "Halo! Saya BLACK EAGLE AI. Ada yang bisa saya bantu?"
+  },
+  {
+    words: ["nama", "siapa kamu"],
+    answer: "Saya BLACK EAGLE AI, asisten digital yang sedang dikembangkan."
+  },
+  {
+    words: ["siapa pembuatmu", "pembuat"],
+    answer: "Saya adalah proyek BLACK EAGLE AI."
+  },
+  {
+    words: ["apa kabar", "kabar"],
+    answer: "Sistem saya berjalan dengan baik. Terima kasih sudah bertanya!"
+  },
+  {
+    words: ["terima kasih", "makasih"],
+    answer: "Sama-sama! BLACK EAGLE AI siap membantu."
+  },
+  {
+    words: ["bantuan", "help"],
+    answer: "Silakan tanyakan tentang pengetahuan umum, belajar, teknologi, atau ide kreatif."
+  }
+];
+
+function eagleThink(message) {
+  const text = message.toLowerCase().trim();
+
+  const result = eagleKnowledge.find(item =>
+    item.words.some(word => text.includes(word))
+  );
+
+  if (result) return result.answer;
+
+  return "Saya belum memahami pertanyaan itu. Otak BLACK EAGLE AI masih dalam tahap pengembangan.";
+}
+
+function eagleSend(message) {
+  return eagleThink(message);
+}
+</script>
+</body>
+</html>
 </body>
 </html>
