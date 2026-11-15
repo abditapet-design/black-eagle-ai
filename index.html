@@ -317,15 +317,45 @@ const eagleKnowledge = [
 ];
 
 function eagleThink(message) {
-  const text = message.toLowerCase().trim();
+  
+function eagleThink(message) {
+  const text = message
+    .toLowerCase()
+    .trim()
+    .replace(/[?!.,]/g, "")
+    .replace(/\s+/g, " ");
 
-  const result = eagleKnowledge.find(item =>
-    item.words.some(word => text.includes(word))
-  );
+  if (!text) {
+    return "Silakan tuliskan pertanyaan terlebih dahulu.";
+  }
 
-  if (result) return result.answer;
+  if (/^(halo|hai|hello|hi)$/.test(text)) {
+    return "Halo! Saya BLACK EAGLE AI. Ada yang bisa saya bantu?";
+  }
 
-  return "Saya belum memahami pertanyaan itu. Otak BLACK EAGLE AI masih dalam tahap pengembangan.";
+  if (/^(siapa kamu|nama kamu|siapa namamu)$/.test(text)) {
+    return "Saya BLACK EAGLE AI, asisten digital yang sedang dikembangkan.";
+  }
+
+  if (/^(apa kabar|bagaimana kabarmu)$/.test(text)) {
+    return "Saya berjalan dengan baik. Terima kasih sudah bertanya!";
+  }
+
+  if (/^(terima kasih|makasih|thanks)$/.test(text)) {
+    return "Sama-sama! Senang bisa membantu.";
+  }
+
+  if (/^(bantuan|help|apa yang bisa kamu lakukan)$/.test(text)) {
+    return "Saya bisa menjawab beberapa pertanyaan dasar, membantu belajar, dan berdiskusi sederhana.";
+  }
+
+  if (text.includes("siapa pembuat")) {
+    return "Saya adalah proyek BLACK EAGLE AI.";
+  }
+
+  return "Maaf, saya belum memiliki pengetahuan untuk menjawab pertanyaan tersebut. Coba gunakan pertanyaan yang lebih sederhana.";
+}
+
 }
 
 function eagleSend(message) {
