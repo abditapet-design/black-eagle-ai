@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BLACK EAGLE AI</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#090b10;color:#fff;
+ font-family:Arial,sans-serif;height:100dvh;
+ display:flex;flex-direction:column
+}
+header{
+ height:65px;background:#11151e;
+ border-bottom:1px solid #98732d;
+ display:flex;align-items:center;padding:0 14px;
+ gap:12px;flex-shrink:0
+}
+.logo{font-size:29px}
+.brand{flex:1}
+.brand h2{margin:0;color:#e6bd64;font-size:19px}
+.brand small{color:#999;font-size:11px}
+button{cursor:pointer}
+.menu-btn,.new-btn{
+ background:#222938;color:#e9c46b;
+ border:1px solid #4a3b20;border-radius:9px;
+ padding:10px;font-size:16px
+}
+.layout{display:flex;flex:1;min-height:0}
+.sidebar{
+ width:245px;background:#11151e;
+ border-right:1px solid #333;
+ padding:12px;display:flex;flex-direction:column;
+ gap:12px
+}
+.new-btn{width:100%;text-align:left}
+.history-title{color:#aaa;font-size:12px}
+.history{overflow-y:auto;flex:1}
+.history-item{
+ display:flex;align-items:center;gap:6px;
+ padding:10px;border-radius:8px;
+ color:#ddd;font-size:13px;cursor:pointer;
+ margin-bottom:5px
+}
+.history-item.active,.history-item:hover{
+ background:#252a35
+}
+.history-item span{flex:1;overflow:hidden;
+ text-overflow:ellipsis;white-space:nowrap}
+.delete-btn{border:0;background:none;color:#aaa}
+main{
+ flex:1;min-width:0;display:flex;
+ flex-direction:column;position:relative
+}
+.chat{
+ flex:1;overflow-y:auto;padding:18px 14px;
+ display:flex;flex-direction:column;gap:15px
+}
+.welcome{text-align:center;margin:auto 0;color:#d9b45f}
+.welcome .eagle{font-size:65px}
+.welcome h1{font-size:25px}
+.welcome p{color:#aaa}
+.message{
+ max-width:88%;padding:13px 15px;
+ border-radius:15px;line-height:1.55;
+ overflow-wrap:anywhere;white-space:pre-wrap
+}
+.bot{background:#1c2431;align-self:flex-start}
+.user{background:#76551c;align-self:flex-end}
+.composer{
+ padding:12px;background:#11151e;
+ border-top:1px solid #333;
+ display:flex;gap:8px
+}
+input{
+ flex:1;min-width:0;padding:14px;
+ border-radius:12px;border:1px solid #555;
+ background:#202633;color:white;font-size:16px
+}
+.send{
+ background:#c69b43;color:#111;
+ border:0;border-radius:12px;
+ padding:0 17px;font-weight:bold
+}
+.note{text-align:center;color:#777;font-size:10px;padding:5px}
+@media(max-width:600px){
+ .sidebar{
+  display:none;position:absolute;z-index:5;
+  top:0;bottom:0;left:0;width:80%;
+  box-shadow:10px 0 30px #000
+ }
+ .sidebar.open{display:flex}
+ .message{max-width:94%}
+}
+</style>
+</head>
+<body>
+
+<header>
+ <button class="menu-btn" onclick="toggleMenu()">☰</button>
+ <div class="logo">🦅</div>
+ <div class="brand">
+  <h2>BLACK EAGLE AI</h2>
+  <small>Your Intelligence. Your Innovation.</small>
+ </div>
+</header>
+
+<div class="layout">
+ <aside class="sidebar" id="sidebar">
+  <button class="new-btn" onclick="newChat()">＋ Percakapan baru</button>
+  <div class="history-title">RIWAYAT PERCAKAPAN</div>
+  <div class="history" id="history"></div>
+ </aside>
+
+ <main>
+  <section class="chat" id="chat"></section>
+  <div class="composer">
+   <input id="input" placeholder="Tanyakan sesuatu..."
+    autocomplete="off">
+   <button class="send" onclick="sendMessage()">KIRIM</button>
+  </div>
+  <div class="note">
+   BLACK EAGLE AI 1.1 • Prototipe
+  </div>
+ </main>
+</div>
+
+<script>
+const STORAGE_KEY="black_eagle_chats_v1";
+let chats=[];
+let activeId=null;
+
+function loadChats(){
+ try{
+  chats=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  if(!Array.isArray(chats))chats=[];
+ }catch(e){chats=[]}
+ if(chats.length===0)newChat();
+ else{
+  activeId=chats[0].id;
+  renderAll();
+ }
+}
+
+function saveChats(){
+ try{
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(chats));
+ }catch(e){
+  alert("Penyimpanan penuh atau tidak tersedia.");
+ }
+}
+
+function currentChat(){
+ return chats.find(c=>c.id===activeId);
+}
+
+function newChat(){
+ const chat={
+  id:Date.now().toString(),
+  title:"Percakapan baru",
+  messages:[]
+ };
+ chats.unshift(chat);
+ activeId=chat.id;
+ saveChats();
+ renderAll();
+ document.getElementById("input").focus();
+ document.getElementById("sidebar").classList.remove("open");
+}
+
+function renderAll(){
+ renderHistory();
+ renderChat();
+}
+
+function renderHistory(){
+ const box=document.getElementById("history");
+ box.innerHTML="";
+ chats.forEach(c=>{
+  const item=document.createElement("div");
+  item.className="history-item"+
+   (c.id===activeId?" active":"");
+
+  const title=document.createElement("span");
+  title.textContent="💬 "+c.title;
+  title.onclick=()=>selectChat(c.id);
+
+  const del=document.createElement("button");
+  del.className="delete-btn";
+  del.textContent="✕";
+  del.title="Hapus percakapan";
+  del.onclick=(e)=>{
+   e.stopPropagation();
+   deleteChat(c.id);
+  };
+
+  item.append(title,del);
+  box.appendChild(item);
+ });
+}
+
+function renderChat(){
+ const box=document.getElementById("chat");
+ box.innerHTML="";
+ const c=currentChat();
+ if(!c)return;
+
+ if(c.messages.length===0){
+  const welcome=document.createElement("div");
+  welcome.className="welcome";
+  welcome.innerHTML=
+   '<div class="eagle">🦅</div>'+
+   '<h1>BLACK EAGLE AI</h1>'+
+   '<p>Ada yang bisa saya bantu hari ini?</p>';
+  box.appendChild(welcome);
+ }
+
+ c.messages.forEach(m=>{
+  const el=document.createElement("div");
+  el.className="message "+m.role;
+  el.textContent=m.text;
+  box.appendChild(el);
+ });
+ box.scrollTop=box.scrollHeight;
+}
+
+function selectChat(id){
+ activeId=id;
+ renderAll();
+ document.getElementById("sidebar").classList.remove("open");
+}
+
+function deleteChat(id){
+ if(!confirm("Hapus percakapan ini?"))return;
+ chats=chats.filter(c=>c.id!==id);
+ if(chats.length===0){
+  newChat();
+  return;
+ }
+ if(activeId===id)activeId=chats[0].id;
+ saveChats();
+ renderAll();
+}
+
+function addMessage(role,text){
+ const c=currentChat();
+ c.messages.push({role,text});
+ if(c.messages.length===1){
+  c.title=text.slice(0,28);
+ }
+ saveChats();
+ renderAll();
+}
+
+function sendMessage(){
+ const input=document.getElementById("input");
+ const text=input.value.trim();
+ if(!text)return;
+
+ addMessage("user",text);
+ input.value="";
+
+ addMessage("bot",
+ "Terima kasih sudah menghubungi BLACK EAGLE AI! 🦅\n\nSaat ini saya masih dalam tahap prototipe. Mesin AI sungguhan belum terhubung. Kita sedang mengembangkannya agar bisa menjawab pertanyaan dengan lebih cerdas."
+ );
+}
+
+function toggleMenu(){
+ document.getElementById("sidebar").classList.toggle("open");
+}
+
+document.getElementById("input")
+ .addEventListener("keydown",e=>{
+  if(e.key==="Enter")sendMessage();
+ });
+
+loadChats();
+</script>
+</body>
+</html>
